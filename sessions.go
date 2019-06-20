@@ -51,6 +51,7 @@ func NewAuth(proto string, host string, port string) *Auth {
 	}
 }
 
+//Run will start the auth, which basically is to run the HandleFunc's needed.
 func (a *Auth) Run() {
 	http.HandleFunc("/login", a.login)
 	http.HandleFunc("/logout", a.logout)
