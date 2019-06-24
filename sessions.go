@@ -38,6 +38,12 @@ type Auth struct {
 }
 
 //NewAuth will return *auth, with a prepared OauthConfig and CookieStore set.
+// proto, is either http or https,
+// host, is the name of your sever, like example.com or localhost or...,
+// port, for example :8080,
+// cookieStoreKey, is the secret key used for the cookie storage,
+// clientIDKey, is the Client ID key found in the google developer console for your oauth app,
+// clientSecret, is the client secret found in the google developer console for your oauth app.
 func NewAuth(proto string, host string, port string, cookieStoreKey string, clientIDKey string, clientSecret string) *Auth {
 	return &Auth{
 		googleOauthConfig: newOauthConfig(proto, host, port, clientIDKey, clientSecret),
