@@ -117,7 +117,7 @@ func (a *Auth) IsAuthenticated(h http.HandlerFunc) http.HandlerFunc {
 // and ID & Secret from environment variables.
 func newOauthConfig(proto string, host string, port string, clientIDKey string, clientSecret string) *oauth2.Config {
 	return &oauth2.Config{
-		RedirectURL:  proto + host + port + "/callback",
+		RedirectURL:  proto + "://" + host + port + "/callback",
 		ClientID:     clientIDKey,
 		ClientSecret: clientSecret,
 		Scopes: []string{
