@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -39,15 +38,10 @@ type Auth struct {
 }
 
 //NewAuth will return *auth, with a prepared OauthConfig and CookieStore set.
-func NewAuth(proto string, host string, port string) *Auth {
-	key := os.Getenv("cookiestorekey")
-	if key == string("") {
-		log.Fatal("error fatal: no environment variable with the name 'cookiestorekey' found !")
-	}
-
+func NewAuth(proto string, host string, port string, cookieStoreKey string, clientIDKey string, clientSecret string) *Auth {
 	return &Auth{
-		googleOauthConfig: newOauthConfig(proto, host, port),
-		store:             sessions.NewCookieStore([]byte(key)),
+		googleOauthConfig: newOauthConfig(proto, host, port, clientIDKey, clientSecret),
+		store:             sessions.NewCookieStore([]byte(cookieStoreKey)),
 	}
 }
 
@@ -121,19 +115,10 @@ func (a *Auth) IsAuthenticated(h http.HandlerFunc) http.HandlerFunc {
 
 //newOauthConfig will return a *oauth2.Config with callback url
 // and ID & Secret from environment variables.
-func newOauthConfig(proto string, host string, port string) *oauth2.Config {
-	clientID := os.Getenv("googlekey")
-	if clientID == "" {
-		log.Fatal("No environment variable named googlekey is set !")
-	}
-	clientSecret := os.Getenv("googlesecret")
-	if clientSecret == "" {
-		log.Fatal("No environment variable named googlesecret is set !")
-	}
-
+func newOauthConfig(proto string, host string, port string, clientIDKey string, clientSecret string) *oauth2.Config {
 	return &oauth2.Config{
 		RedirectURL:  proto + host + port + "/callback",
-		ClientID:     clientID,
+		ClientID:     clientIDKey,
 		ClientSecret: clientSecret,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
@@ -173,7 +158,7 @@ func (a *Auth) handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userInfo := struct {
-		Id            string `json:"id"`
+		ID            string `json:"id"`
 		Email         string `json:"email"`
 		VerifiedEmail bool   `json:"verified_email"`
 		Picture       string `json:"picture"`
@@ -196,7 +181,7 @@ func (a *Auth) handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	//set the session values to put into the cookie.
 	session.Values["authenticated"] = true
-	session.Values["id"] = userInfo.Id
+	session.Values["id"] = userInfo.ID
 	session.Values["fullname"] = userInfo.FullName
 	session.Values["email"] = userInfo.Email
 	session.Values["state"] = state
