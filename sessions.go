@@ -109,13 +109,14 @@ func (a *Auth) IsAuthenticated(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := a.store.Get(r, "cookie-name")
 		email, _ := session.Values["email"]
-		log.Printf("\n--- Authenticated user accessing page is : %v ---\n", email)
 
 		// Check if user is authenticated
 		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
+
+		log.Printf("\n--- Authenticated user accessing page is : %v ---\n", email)
 
 		h(w, r)
 	}
